@@ -2,7 +2,7 @@ from flask_jwt_extended import JWTManager, create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from core.database import get_database_session
 from core.flask import get_flask_app
-from core.models import User
+from core.models import Employee
 from functools import wraps
 
 from flask import jsonify
@@ -32,9 +32,9 @@ def check_validation(function):
         if 'token_id' not in identity:
             return show_error_func('no token_id in token')
 
-        user = get_database_session().query(User).\
-            filter(User.id == identity['user_id']).\
-            filter(User.token_id == identity['token_id']).\
+        user = get_database_session().query(Employee).\
+            filter(Employee.id == identity['user_id']).\
+            filter(Employee.token_id == identity['token_id']).\
             first()
 
         if not user:
@@ -56,9 +56,9 @@ def check_validation_with_user(function):
         if 'token_id' not in identity:
             return show_error_func('no token_id in token')
 
-        user = get_database_session().query(User). \
-            filter(User.id == identity['user_id']). \
-            filter(User.token_id == identity['token_id']). \
+        user = get_database_session().query(Employee). \
+            filter(Employee.id == identity['user_id']). \
+            filter(Employee.token_id == identity['token_id']). \
             first()
 
         if not user:
@@ -85,9 +85,9 @@ def check_role_validation(roles = []):
             if 'token_id' not in identity:
                 return show_error_func('no token_id in token')
 
-            user = get_database_session().query(User). \
-                filter(User.id == identity['user_id']). \
-                filter(User.token_id == identity['token_id']). \
+            user = get_database_session().query(Employee). \
+                filter(Employee.id == identity['user_id']). \
+                filter(Employee.token_id == identity['token_id']). \
                 first()
             user_roles = user.role_string_array
             if 'SuperUser' not in user_roles:

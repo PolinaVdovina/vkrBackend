@@ -1,7 +1,7 @@
 class Config(object):
     JWT_SECRET_KEY = 'super_secret_troll_key'
     SECRET_KEY = 'super_secret_troll_key'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:123qweasdZXC@localhost:5432/how_to_build'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+pg8000://postgres:Qewrytuoi13@localhost:5432/vkrDatabase'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     FLASK_ADMIN_SWATCH = 'cerulean'
     PORT = 5000
