@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from core import get_database, get_database_session
 from core.models import Employee, Role, Executor, User, json_to_model, WorkGroup, Incident, WorkTask
 from core.auth.jwt import check_validation, check_validation_with_user, check_role_validation
+from core.neuralNet.nnmain import assignment_of_tasks
+
 
 class GetUserTable(Resource):
     def post(self):
@@ -51,8 +53,15 @@ class CreateIncident(Resource):
         id_status = json_data['id_status']
         date_reg = json_data['date_reg']
         description = json_data['description']
+        mass = assignment_of_tasks(description)
         new_incident = Incident(id_user=id_user, id_method=id_method, id_status=id_status, date_reg=date_reg, description=description)
         get_database().session.add(new_incident)
+        get_database().session.commit()
+        for el in mass:
+            wg = get_database_session().query(WorkGroup).filter(WorkGroup.value == el).first()
+            if el:
+                new_wt = WorkTask(id_incident = new_incident.id, description = description, id_work_group = wg.id)
+                get_database().session.add(new_wt)
         get_database().session.commit()
 
 
@@ -174,6 +183,7 @@ class GetDispatcherTable(Resource):
                     inc_in_process.append(inc)
             return jsonify([incident.to_basic_dictionary() for incident in inc_in_process])
         elif type == 'appointed':
+            tasks = get_database_session().query(WorkTask).filter(WorkTask.id_work_group != None).all()
             return jsonify([worktask.to_basic_dictionary() for worktask in tasks])
         elif type == 'refuse':
             result = []
@@ -193,3 +203,29 @@ class GetDispatcherTable(Resource):
                 if wt.rating_user is not None and wt.rating_isp is not None and wt.rating_user < 3.0 and wt.rating_isp < 3.0:
                     result.append(wt)
             return jsonify([worktask.to_basic_dictionary() for worktask in result])
+
+
+class GetChiefTable(Resource):
+    def post(self):
+        json_data = request.get_json()
+        type = json_data['type']
+        id_chief = json_data['id']
+        work_group = get_database_session().query(WorkGroup).filter(WorkGroup.id_chief == id_chief).first()
+        if type == 'new':
+            tasks = get_database_session().query(WorkTask).filter(
+                (WorkTask.Work_group == work_group) & (WorkTask.id_executor == None)).all()
+            return jsonify([worktask.to_basic_dictionary() for worktask in tasks])
+        elif type == 'in_process':
+            tasks = get_database_session().query(WorkTask).filter(
+                (WorkTask.Work_group == work_group) &
+                (WorkTask.id_executor != None) &
+                (WorkTask.date_start != None) &
+                (WorkTask.date_end == None)).all()
+            return jsonify([worktask.to_basic_dictionary() for worktask in tasks])
+        elif type == 'complete':
+            tasks = get_database_session().query(WorkTask).filter(
+                (WorkTask.Work_group == work_group) &
+                (WorkTask.id_executor != None) &
+                (WorkTask.date_start != None) &
+                (WorkTask.date_end != None)).all()
+            return jsonify([worktask.to_basic_dictionary() for worktask in tasks])

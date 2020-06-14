@@ -1,4 +1,4 @@
-from .resources import GetUserTable, CreateIncident, SetRating, GetEngineerTable, UpdateWorkTask, GetDispatcherTable
+from .resources import GetUserTable, CreateIncident, SetRating, GetEngineerTable, UpdateWorkTask, GetDispatcherTable, GetChiefTable
 
 
 urls = [
@@ -7,5 +7,6 @@ urls = [
     (SetRating, '/api/set_rating'),
     (GetEngineerTable, '/api/engineer_table'),
     (UpdateWorkTask, '/api/update_work_task'),
-    (GetDispatcherTable, '/api/disp_table')
+    (GetDispatcherTable, '/api/disp_table'),
+    (GetChiefTable, '/api/chief_table')
 ]

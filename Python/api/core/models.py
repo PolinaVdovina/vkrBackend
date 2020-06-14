@@ -258,7 +258,8 @@ class WorkTask(Base):
     __tablename__ = 'Work_task'
     __table_args__ = {'schema': 'public'}
 
-    id = Column(BigInteger, primary_key=True, server_default=text("nextval('\"public\".\"Work_task_id_seq\"'::regclass)"))
+    id = Column(BigInteger, primary_key=True, unique=True,
+                server_default=text("nextval('\"public\".\"Work_task_id_seq\"'::regclass)"))
     id_incident = Column(ForeignKey('public.Incident.id'))
     id_work_group = Column(ForeignKey('public.Work_group.id'))
     date_start = Column(Date)
@@ -286,6 +287,10 @@ class WorkTask(Base):
         date_deadline = self.date_deadline
         if self.date_deadline is not None:
             date_deadline = self.date_deadline.strftime("%d/%m/%y %H:%M")
+        if self.Executor is not None:
+            executor_name = self.Executor.name
+        else:
+            executor_name = None
         return {
             'id': self.id,
             'description': self.description,
@@ -293,7 +298,7 @@ class WorkTask(Base):
             'id_work_group': self.id_work_group,
             'work_group': self.Work_group.value,
             'id_executor': self.id_executor,
-            'executor': self.Executor.name,
+            'executor': executor_name,
             'solution': self.solution,
             'rating_isp': self.rating_isp,
             'rating_user': self.rating_user,
@@ -302,6 +307,7 @@ class WorkTask(Base):
             'date_deadline': date_deadline,
             'delay_reason': self.delay_reason,
             'priority': self.priority,
-            'user': self.Incident.User.name
+            'user': self.Incident.User.name,
+            'date_reg': self.Incident.date_reg.strftime("%d/%m/%y %H:%M")
         }
 

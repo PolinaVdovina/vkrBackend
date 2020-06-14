@@ -54,7 +54,7 @@ class GetWorkGroupsAnal(Resource):
                     time_sum += el.date_end - el.date_start
                     time_num += 1
             if time_num != 0:
-                time_sr = (time_sum / time_num).strftime
+                time_sr = time_sum / time_num
             temp['time_sr'] = str(time_sr)
             temp['amount_delay'] = 0
             for el in list:
